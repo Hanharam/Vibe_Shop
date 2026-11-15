@@ -156,6 +156,15 @@
   .total strong { margin-left: 8px; font-size: 22px; }
   .order-btn { padding: 14px 28px; border: 0; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: 700; }
 
+  .faq-title { margin: 0 0 20px; font-size: 24px; }
+  .faq-list { display: flex; flex-direction: column; gap: 10px; }
+  .faq-item { border: 1px solid #ececec; border-radius: 8px; background: #fff; overflow: hidden; }
+  .faq-q { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; border: 0; background: none; text-align: left; font-size: 15px; font-weight: 600; }
+  .faq-q-mark { color: #999; font-weight: 400; transition: transform 0.15s ease; }
+  .faq-q[aria-expanded="true"] .faq-q-mark { transform: rotate(45deg); }
+  .faq-a { margin: 0; padding: 0 18px 16px; color: #555; font-size: 14px; }
+  .faq-a[hidden] { display: none; }
+
   .empty { padding: 60px 20px; text-align: center; background: #fff; border: 1px solid #ececec; border-radius: 8px; }
   .empty p { margin: 0 0 20px; color: #555; }
   .btn-outline { display: inline-block; padding: 12px 22px; border: 1px solid #1a1a1a; border-radius: 6px; background: #fff; color: #1a1a1a; font-weight: 600; }
@@ -182,7 +191,10 @@
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="#/">STYLE SHOP</a>
-    <a class="cart-link" href="#/cart">장바구니 <span class="badge" id="badge"></span></a>
+    <nav style="display:flex; align-items:center; gap:20px;">
+      <a href="#/faq">FAQ</a>
+      <a class="cart-link" href="#/cart">장바구니 <span class="badge" id="badge"></span></a>
+    </nav>
   </div>
 </header>
 <main id="app">
@@ -239,6 +251,14 @@ const PRODUCTS = [
     imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=75&auto=format&fit=crop', sizes: ['FREE'],
     colors: [{ name: '내추럴', hex: '#e2d6b8' }, { name: '블랙', hex: '#1f1f1f' }],
   },
+];
+
+const FAQS = [
+  { q: '배송은 얼마나 걸리나요?', a: '결제 완료 후 평균 2~3일 이내 출고되며, 지역에 따라 1~2일의 배송 시간이 추가로 소요될 수 있습니다.' },
+  { q: '교환/환불은 어떻게 하나요?', a: '상품 수령 후 7일 이내에 미사용 상태로 신청하시면 교환 또는 환불이 가능합니다. 단순 변심의 경우 왕복 배송비는 고객 부담입니다.' },
+  { q: '사이즈가 맞지 않으면 어떻게 하나요?', a: '사이즈 교환은 1회 무료로 지원됩니다. 상품 상세 페이지의 사이즈 가이드를 참고해 주세요.' },
+  { q: '해외 배송도 가능한가요?', a: '현재는 국내 배송만 지원하고 있습니다. 해외 배송은 추후 지원할 예정입니다.' },
+  { q: '결제 수단은 무엇이 있나요?', a: '신용카드, 체크카드, 계좌이체 등 토스페이먼츠에서 지원하는 다양한 결제 수단을 이용할 수 있습니다.' },
 ];
 
 const app = document.getElementById('app');
@@ -495,6 +515,29 @@ async function startPayment() {
   });
 }
 
+function renderFaq() {
+  app.innerHTML = `
+    <a class="back-link" href="#/">← 목록으로</a>
+    <h1 class="faq-title">자주 묻는 질문</h1>
+    <div class="faq-list">
+      ${FAQS.map((item, i) => `
+        <div class="faq-item">
+          <button class="faq-q" id="faq-q-${i}" aria-expanded="false" aria-controls="faq-a-${i}">
+            <span>${esc(item.q)}</span>
+            <span class="faq-q-mark" aria-hidden="true">+</span>
+          </button>
+          <p class="faq-a" id="faq-a-${i}" role="region" aria-labelledby="faq-q-${i}" hidden>${esc(item.a)}</p>
+        </div>`).join('')}
+    </div>`;
+
+  app.querySelectorAll('.faq-q').forEach(btn => btn.addEventListener('click', () => {
+    const answer = document.getElementById(btn.getAttribute('aria-controls'));
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    answer.hidden = open;
+  }));
+}
+
 function renderComplete() {
   app.innerHTML = `
     <div class="complete">
@@ -532,6 +575,7 @@ function parseRoute() {
   const match = path.match(/^\/product\/([^/]+)$/);
   if (match) return { name: 'detail', id: match[1] };
   if (path === '/cart') return { name: 'cart' };
+  if (path === '/faq') return { name: 'faq' };
   if (path === '/order-complete') return { name: 'complete' };
   if (path === '/payment-fail') return { name: 'fail' };
   return { name: 'list' };
@@ -552,6 +596,9 @@ function render() {
   } else if (route.name === 'cart') {
     renderCart();
     updateMeta('장바구니 | STYLE SHOP', '장바구니에 담은 상품을 확인하고 주문할 수 있습니다.');
+  } else if (route.name === 'faq') {
+    renderFaq();
+    updateMeta('자주 묻는 질문 | STYLE SHOP', '배송, 교환/환불, 결제 수단 등 자주 묻는 질문을 확인하세요.');
   } else if (route.name === 'complete') {
     renderComplete();
     updateMeta('주문 완료 | STYLE SHOP', '주문이 완료되었습니다.');
