@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STYLE SHOP</title>
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { min-height: 100vh; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color: #1a1a1a; background: #fafafa; line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  button, select { font: inherit; cursor: pointer; }
+
+  .header { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #e5e5e5; }
+  .header-inner { max-width: 1100px; margin: 0 auto; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-size: 20px; font-weight: 800; letter-spacing: 0.08em; }
+  .cart-link { position: relative; font-size: 15px; font-weight: 600; }
+  .badge { position: absolute; top: -8px; right: -16px; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #e5484d; color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
+  .badge:empty { display: none; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+  .back-link { display: inline-block; margin-bottom: 16px; font-size: 14px; color: #555; }
+
+  .tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px; }
+  .chip { flex: none; padding: 8px 16px; border: 1px solid #d0d0d0; border-radius: 999px; background: #fff; }
+  .chip[aria-pressed="true"] { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .count { margin: 0; font-size: 14px; color: #666; }
+  .toolbar select { padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 6px; background: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .card { display: block; background: #fff; border: 1px solid #ececec; border-radius: 8px; overflow: hidden; }
+  .card:hover { border-color: #bbb; }
+  .card-body { padding: 12px 14px 16px; }
+  .card-name { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+  .price { margin: 0; font-weight: 700; }
+
+  .thumb { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; padding: 12px; }
+  .thumb-label { max-width: 85%; padding: 6px 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.92); font-size: 14px; font-weight: 600; text-align: center; }
+
+  .detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+  .detail .thumb { border-radius: 8px; }
+  .detail .thumb-label { font-size: 18px; }
+  .detail-cat { margin: 0 0 6px; font-size: 14px; color: #666; }
+  .detail-name { margin: 0 0 8px; font-size: 26px; }
+  .detail-price { margin: 0 0 16px; font-size: 22px; font-weight: 700; }
+  .detail-desc { margin: 0 0 24px; color: #444; }
+  .opt-title { margin: 18px 0 8px; font-size: 14px; font-weight: 700; }
+  .opt-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .size-btn { min-width: 52px; padding: 10px 14px; border: 1px solid #cfcfcf; border-radius: 6px; background: #fff; }
+  .size-btn[aria-pressed="true"] { border-color: #1a1a1a; box-shadow: inset 0 0 0 1px #1a1a1a; font-weight: 700; }
+  .swatch-btn { display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 6px; border: 1px solid #cfcfcf; border-radius: 999px; background: #fff; }
+  .swatch-btn[aria-pressed="true"] { border-color: #1a1a1a; box-shadow: inset 0 0 0 1px #1a1a1a; font-weight: 700; }
+  .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.15); }
+  .add-btn { width: 100%; margin-top: 28px; padding: 16px; border: 0; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: 700; }
+  .msg { min-height: 1.5em; margin: 12px 0 0; font-size: 14px; }
+  .msg.error { color: #d23b3b; }
+  .msg.ok { color: #1f7a3d; }
+
+  .cart-title { margin: 0 0 20px; font-size: 24px; }
+  .cart-table { width: 100%; border: 1px solid #ececec; border-radius: 8px; border-collapse: collapse; background: #fff; }
+  .cart-table th, .cart-table td { padding: 16px 12px; border-bottom: 1px solid #efefef; text-align: left; vertical-align: middle; font-size: 15px; }
+  .cart-table th { background: #fafafa; font-size: 13px; font-weight: 600; color: #666; }
+  .cart-table .num { text-align: right; }
+  .cart-item-name { font-weight: 600; }
+  .cart-meta { font-size: 13px; color: #666; }
+  .qty { display: inline-flex; align-items: center; border: 1px solid #cfcfcf; border-radius: 6px; overflow: hidden; }
+  .qty button { width: 32px; height: 32px; border: 0; background: #fff; font-size: 16px; }
+  .qty button:disabled { color: #bbb; cursor: not-allowed; }
+  .qty span { min-width: 36px; text-align: center; }
+  .del-btn { padding: 4px; border: 0; background: none; color: #666; text-decoration: underline; }
+  .cart-summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 24px; }
+  .total { margin: 0; font-size: 18px; }
+  .total strong { margin-left: 8px; font-size: 22px; }
+  .order-btn { padding: 14px 28px; border: 0; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: 700; }
+
+  .empty { padding: 60px 20px; text-align: center; background: #fff; border: 1px solid #ececec; border-radius: 8px; }
+  .empty p { margin: 0 0 20px; color: #555; }
+  .btn-outline { display: inline-block; padding: 12px 22px; border: 1px solid #1a1a1a; border-radius: 6px; background: #fff; color: #1a1a1a; font-weight: 600; }
+  .complete { padding: 80px 20px; text-align: center; }
+  .complete h1 { margin: 0 0 10px; font-size: 26px; }
+  .complete p { margin: 0 0 28px; color: #555; }
+
+  @media (max-width: 600px) {
+    main { padding: 16px 14px 48px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .detail { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .detail-name { font-size: 22px; }
+    .cart-table thead { display: none; }
+    .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; }
+    .cart-table tr { padding: 12px 0; border-bottom: 1px solid #efefef; }
+    .cart-table td { padding: 4px 16px; border: 0; }
+    .cart-table td.num { text-align: left; }
+    .cart-summary { flex-direction: column; align-items: stretch; }
+    .order-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#/">STYLE SHOP</a>
+    <a class="cart-link" href="#/cart">장바구니 <span class="badge" id="badge"></span></a>
+  </div>
+</header>
+<main id="app"></main>
+<script>
+const CATEGORIES = ['전체', '상의', '하의', '아우터', '액세서리'];
+const SORTS = { default: '기본순', priceAsc: '가격 낮은순', priceDesc: '가격 높은순' };
+const CART_KEY = 'shop-cart';
+const MAX_QTY = 99;
+const TOSS_CLIENT_KEY = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+const PENDING_KEY = 'shop-pending-order';
+const RETURN_URL = location.href.split(/[?#]/)[0];
+const RETURN_PARAMS = new URLSearchParams(location.search);
+
+const PRODUCTS = [
+  {
+    id: 'top-01', name: '오버핏 코튼 티셔츠', category: '상의', price: 29000,
+    description: '부드러운 면 소재로 만든 여유 있는 실루엣의 기본 티셔츠입니다.',
+    imageColor: '#8fa3bf', sizes: ['S', 'M', 'L', 'XL'],
+    colors: [{ name: '블랙', hex: '#1f1f1f' }, { name: '화이트', hex: '#f5f5f2' }, { name: '네이비', hex: '#1f2a44' }],
+  },
+  {
+    id: 'top-02', name: '린넨 오픈카라 셔츠', category: '상의', price: 46000,
+    description: '통기성이 좋은 린넨 혼방 셔츠. 여름철 가벼운 레이어드에 어울립니다.',
+    imageColor: '#d9c6a5', sizes: ['S', 'M', 'L', 'XL'],
+    colors: [{ name: '베이지', hex: '#d8c3a5' }, { name: '스카이블루', hex: '#9ec5e8' }],
+  },
+  {
+    id: 'bottom-01', name: '와이드 데님 팬츠', category: '하의', price: 52000,
+    description: '허리부터 떨어지는 와이드 핏의 데님 팬츠입니다.',
+    imageColor: '#3b5b8c', sizes: ['S', 'M', 'L', 'XL'],
+    colors: [{ name: '인디고', hex: '#3b5b8c' }, { name: '블랙', hex: '#1f1f1f' }],
+  },
+  {
+    id: 'outer-01', name: '나일론 윈드브레이커', category: '아우터', price: 79000,
+    description: '가볍고 바람을 막아주는 나일론 자켓. 지퍼 포켓이 있습니다.',
+    imageColor: '#6b6b4b', sizes: ['S', 'M', 'L', 'XL'],
+    colors: [{ name: '카키', hex: '#6b6b4b' }, { name: '블랙', hex: '#1f1f1f' }, { name: '네이비', hex: '#1f2a44' }],
+  },
+  {
+    id: 'acc-01', name: '울 니트 비니', category: '액세서리', price: 19000,
+    description: '겨울 필수 아이템. 머리 둘레에 맞춰 늘어나는 니트 비니입니다.',
+    imageColor: '#8a8f98', sizes: ['FREE'],
+    colors: [{ name: '그레이', hex: '#8a8f98' }, { name: '버건디', hex: '#6d1f2e' }],
+  },
+  {
+    id: 'acc-02', name: '캔버스 토트백', category: '액세서리', price: 34000,
+    description: '두툼한 캔버스 원단의 토트백. 노트북도 넉넉히 들어갑니다.',
+    imageColor: '#e2d6b8', sizes: ['FREE'],
+    colors: [{ name: '내추럴', hex: '#e2d6b8' }, { name: '블랙', hex: '#1f1f1f' }],
+  },
+];
+
+const app = document.getElementById('app');
+const badge = document.getElementById('badge');
+
+let currentCategory = '전체';
+let currentSort = 'default';
+let failMessage = '';
+
+const findProduct = id => PRODUCTS.find(p => p.id === id);
+const won = n => `${n.toLocaleString('ko-KR')}원`;
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+
+function isValidItem(item) {
+  const p = findProduct(item && item.productId);
+  return Boolean(p)
+    && p.sizes.includes(item.size)
+    && p.colors.some(c => c.name === item.color)
+    && Number.isInteger(item.quantity)
+    && item.quantity >= 1
+    && item.quantity <= MAX_QTY;
+}
+
+function loadCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_KEY));
+    return Array.isArray(saved) ? saved.filter(isValidItem) : [];
+  } catch {
+    return [];
+  }
+}
+
+let cart = loadCart();
+
+function updateBadge() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  badge.textContent = count > 0 ? count : '';
+}
+
+function persist() {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  updateBadge();
+}
+
+function thumb(p) {
+  return `<div class="thumb" style="background:${p.imageColor}"><span class="thumb-label">${esc(p.name)}</span></div>`;
+}
+
+function visibleProducts() {
+  const list = PRODUCTS.filter(p => currentCategory === '전체' || p.category === currentCategory);
+  if (currentSort === 'priceAsc') return list.sort((a, b) => a.price - b.price);
+  if (currentSort === 'priceDesc') return list.sort((a, b) => b.price - a.price);
+  return list;
+}
+
+function renderList() {
+  const items = visibleProducts();
+  app.innerHTML = `
+    <div class="tabs" role="group" aria-label="카테고리">
+      ${CATEGORIES.map(c => `<button class="chip" data-category="${c}" aria-pressed="${c === currentCategory}">${c}</button>`).join('')}
+    </div>
+    <div class="toolbar">
+      <p class="count">${items.length}개 상품</p>
+      <select id="sort" aria-label="정렬">
+        ${Object.entries(SORTS).map(([k, v]) => `<option value="${k}"${k === currentSort ? ' selected' : ''}>${v}</option>`).join('')}
+      </select>
+    </div>
+    <div class="grid">
+      ${items.map(p => `
+        <a class="card" href="#/product/${p.id}">
+          ${thumb(p)}
+          <div class="card-body">
+            <h2 class="card-name">${esc(p.name)}</h2>
+            <p class="price">${won(p.price)}</p>
+          </div>
+        </a>`).join('')}
+    </div>`;
+
+  app.querySelectorAll('[data-category]').forEach(btn => btn.addEventListener('click', () => {
+    currentCategory = btn.dataset.category;
+    renderList();
+  }));
+  app.querySelector('#sort').addEventListener('change', e => {
+    currentSort = e.target.value;
+    renderList();
+  });
+}
+
+function pick(buttons, active) {
+  buttons.forEach(b => b.setAttribute('aria-pressed', String(b === active)));
+}
+
+function setMsg(el, text, type) {
+  el.textContent = text;
+  el.className = `msg ${type}`;
+}
+
+function renderDetail(id) {
+  const p = findProduct(id);
+  if (!p) {
+    app.innerHTML = `<div class="empty"><p>상품을 찾을 수 없습니다.</p><a class="btn-outline" href="#/">목록으로</a></div>`;
+    return;
+  }
+
+  const sel = { size: null, color: null };
+  app.innerHTML = `
+    <a class="back-link" href="#/">← 목록으로</a>
+    <div class="detail">
+      ${thumb(p)}
+      <div>
+        <p class="detail-cat">${esc(p.category)}</p>
+        <h1 class="detail-name">${esc(p.name)}</h1>
+        <p class="detail-price">${won(p.price)}</p>
+        <p class="detail-desc">${esc(p.description)}</p>
+        <p class="opt-title">사이즈</p>
+        <div class="opt-list">
+          ${p.sizes.map(s => `<button class="size-btn" data-size="${esc(s)}" aria-pressed="false">${esc(s)}</button>`).join('')}
+        </div>
+        <p class="opt-title">색상</p>
+        <div class="opt-list">
+          ${p.colors.map(c => `<button class="swatch-btn" data-color="${esc(c.name)}" aria-pressed="false"><span class="swatch" style="background:${c.hex}"></span>${esc(c.name)}</button>`).join('')}
+        </div>
+        <button class="add-btn" id="add">장바구니 담기</button>
+        <p class="msg" id="msg" role="status"></p>
+      </div>
+    </div>`;
+
+  const msg = app.querySelector('#msg');
+  const sizeButtons = [...app.querySelectorAll('[data-size]')];
+  const colorButtons = [...app.querySelectorAll('[data-color]')];
+
+  sizeButtons.forEach(b => b.addEventListener('click', () => {
+    sel.size = b.dataset.size;
+    pick(sizeButtons, b);
+  }));
+  colorButtons.forEach(b => b.addEventListener('click', () => {
+    sel.color = b.dataset.color;
+    pick(colorButtons, b);
+  }));
+
+  app.querySelector('#add').addEventListener('click', () => {
+    const need = !sel.size && !sel.color ? '사이즈와 색상을' : !sel.size ? '사이즈를' : !sel.color ? '색상을' : null;
+    if (need) {
+      setMsg(msg, `${need} 선택해 주세요.`, 'error');
+      return;
+    }
+    const same = cart.find(i => i.productId === p.id && i.size === sel.size && i.color === sel.color);
+    if (same && same.quantity >= MAX_QTY) {
+      setMsg(msg, `최대 ${MAX_QTY}개까지 담을 수 있습니다.`, 'error');
+      return;
+    }
+    if (same) same.quantity += 1;
+    else cart.push({ productId: p.id, size: sel.size, color: sel.color, quantity: 1 });
+    persist();
+    setMsg(msg, '장바구니에 담았습니다.', 'ok');
+  });
+}
+
+function renderCart() {
+  if (cart.length === 0) {
+    app.innerHTML = `
+      <h1 class="cart-title">장바구니</h1>
+      <div class="empty"><p>장바구니가 비어 있습니다.</p><a class="btn-outline" href="#/">쇼핑 계속하기</a></div>`;
+    return;
+  }
+
+  const total = cart.reduce((sum, item) => sum + findProduct(item.productId).price * item.quantity, 0);
+  app.innerHTML = `
+    <h1 class="cart-title">장바구니</h1>
+    <table class="cart-table">
+      <thead>
+        <tr><th>상품</th><th class="num">단가</th><th>수량</th><th class="num">소계</th><th></th></tr>
+      </thead>
+      <tbody>
+        ${cart.map((item, i) => {
+          const p = findProduct(item.productId);
+          return `
+          <tr>
+            <td>
+              <a class="cart-item-name" href="#/product/${p.id}">${esc(p.name)}</a>
+              <div class="cart-meta">${esc(item.size)} / ${esc(item.color)}</div>
+            </td>
+            <td class="num">${won(p.price)}</td>
+            <td>
+              <div class="qty">
+                <button data-action="dec" data-index="${i}" aria-label="수량 줄이기"${item.quantity <= 1 ? ' disabled' : ''}>−</button>
+                <span>${item.quantity}</span>
+                <button data-action="inc" data-index="${i}" aria-label="수량 늘리기"${item.quantity >= MAX_QTY ? ' disabled' : ''}>+</button>
+              </div>
+            </td>
+            <td class="num">${won(p.price * item.quantity)}</td>
+            <td><button class="del-btn" data-action="remove" data-index="${i}">삭제</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="cart-summary">
+      <p class="total">합계 <strong>${won(total)}</strong></p>
+      <button class="order-btn" id="order">주문하기</button>
+    </div>`;
+
+  app.querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', () => {
+    const i = Number(btn.dataset.index);
+    const item = cart[i];
+    if (btn.dataset.action === 'inc') item.quantity = Math.min(item.quantity + 1, MAX_QTY);
+    if (btn.dataset.action === 'dec') item.quantity = Math.max(item.quantity - 1, 1);
+    if (btn.dataset.action === 'remove') cart.splice(i, 1);
+    persist();
+    renderCart();
+  }));
+
+  app.querySelector('#order').addEventListener('click', startPayment);
+}
+
+let widgets = null;
+let paymentWindow = null;
+
+function orderName() {
+  const first = cart[0] ? findProduct(cart[0].productId).name : '주문';
+  return cart.length > 1 ? `${first} 외 ${cart.length - 1}건` : first;
+}
+
+async function startPayment() {
+  const amount = cart.reduce((sum, item) => sum + findProduct(item.productId).price * item.quantity, 0);
+  const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  localStorage.setItem(PENDING_KEY, JSON.stringify({ orderId, amount }));
+  try {
+    widgets = TossPayments(TOSS_CLIENT_KEY).widgets({ customerKey: TossPayments.ANONYMOUS });
+    await widgets.setAmount({ value: amount, currency: 'KRW' });
+    if (paymentWindow) await paymentWindow.destroy();
+    paymentWindow = await widgets.renderPaymentWindow({
+      orderName: orderName(),
+      variantKey: { paymentMethod: 'DEFAULT', agreement: 'AGREEMENT' },
+    });
+  } catch (error) {
+    failMessage = error.message || '결제창을 열 수 없습니다.';
+    location.hash = '#/payment-fail';
+    return;
+  }
+
+  paymentWindow.on('paymentRequest', async () => {
+    try {
+      await widgets.requestPayment({
+        orderId,
+        orderName: orderName(),
+        successUrl: RETURN_URL,
+        failUrl: RETURN_URL,
+      });
+    } catch (error) {
+      failMessage = error.message || '결제를 진행할 수 없습니다.';
+      location.hash = '#/payment-fail';
+    }
+  });
+}
+
+function renderComplete() {
+  app.innerHTML = `
+    <div class="complete">
+      <h1>주문이 완료되었습니다</h1>
+      <p>감사합니다. 주문 내역은 저장되지 않습니다.</p>
+      <a class="btn-outline" href="#/">쇼핑 계속하기</a>
+    </div>`;
+}
+
+function renderFail() {
+  app.innerHTML = `
+    <div class="complete">
+      <h1>결제에 실패했습니다</h1>
+      <p>${esc(failMessage || '결제가 완료되지 않았습니다. 장바구니는 그대로 남아 있습니다.')}</p>
+      <a class="btn-outline" href="#/cart">장바구니로 돌아가기</a>
+    </div>`;
+  failMessage = '';
+}
+
+function confirmPayment(params) {
+  const pending = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null');
+  if (!pending || pending.orderId !== params.get('orderId') || Number(params.get('amount')) !== pending.amount) {
+    failMessage = '결제 정보가 일치하지 않아 주문을 완료할 수 없습니다.';
+    location.hash = '#/payment-fail';
+    return;
+  }
+  cart = [];
+  persist();
+  localStorage.removeItem(PENDING_KEY);
+  location.hash = '#/order-complete';
+}
+
+function parseRoute() {
+  const path = location.hash.replace(/^#/, '') || '/';
+  const match = path.match(/^\/product\/([^/]+)$/);
+  if (match) return { name: 'detail', id: match[1] };
+  if (path === '/cart') return { name: 'cart' };
+  if (path === '/order-complete') return { name: 'complete' };
+  if (path === '/payment-fail') return { name: 'fail' };
+  return { name: 'list' };
+}
+
+function render() {
+  const route = parseRoute();
+  if (route.name === 'detail') renderDetail(route.id);
+  else if (route.name === 'cart') renderCart();
+  else if (route.name === 'complete') renderComplete();
+  else if (route.name === 'fail') renderFail();
+  else renderList();
+}
+
+window.addEventListener('hashchange', () => {
+  render();
+  window.scrollTo(0, 0);
+});
+
+updateBadge();
+history.replaceState(null, '', location.pathname + location.hash);
+if (RETURN_PARAMS.has('paymentKey')) confirmPayment(RETURN_PARAMS);
+else if (RETURN_PARAMS.has('code')) {
+  failMessage = RETURN_PARAMS.get('message') || '';
+  location.hash = '#/payment-fail';
+} else render();
+</script>
+</body>
+</html>
