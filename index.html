@@ -35,12 +35,11 @@
   .card-name { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
   .price { margin: 0; font-weight: 700; }
 
-  .thumb { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; padding: 12px; }
-  .thumb-label { max-width: 85%; padding: 6px 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.92); font-size: 14px; font-weight: 600; text-align: center; }
+  .thumb { aspect-ratio: 3 / 4; position: relative; overflow: hidden; background: #eee; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
   .detail .thumb { border-radius: 8px; }
-  .detail .thumb-label { font-size: 18px; }
   .detail-cat { margin: 0 0 6px; font-size: 14px; color: #666; }
   .detail-name { margin: 0 0 8px; font-size: 26px; }
   .detail-price { margin: 0 0 16px; font-size: 22px; font-weight: 700; }
@@ -118,37 +117,37 @@ const PRODUCTS = [
   {
     id: 'top-01', name: '오버핏 코튼 티셔츠', category: '상의', price: 29000,
     description: '부드러운 면 소재로 만든 여유 있는 실루엣의 기본 티셔츠입니다.',
-    imageColor: '#8fa3bf', sizes: ['S', 'M', 'L', 'XL'],
+    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=75&auto=format&fit=crop', sizes: ['S', 'M', 'L', 'XL'],
     colors: [{ name: '블랙', hex: '#1f1f1f' }, { name: '화이트', hex: '#f5f5f2' }, { name: '네이비', hex: '#1f2a44' }],
   },
   {
     id: 'top-02', name: '린넨 오픈카라 셔츠', category: '상의', price: 46000,
     description: '통기성이 좋은 린넨 혼방 셔츠. 여름철 가벼운 레이어드에 어울립니다.',
-    imageColor: '#d9c6a5', sizes: ['S', 'M', 'L', 'XL'],
+    imageUrl: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&q=75&auto=format&fit=crop', sizes: ['S', 'M', 'L', 'XL'],
     colors: [{ name: '베이지', hex: '#d8c3a5' }, { name: '스카이블루', hex: '#9ec5e8' }],
   },
   {
     id: 'bottom-01', name: '와이드 데님 팬츠', category: '하의', price: 52000,
     description: '허리부터 떨어지는 와이드 핏의 데님 팬츠입니다.',
-    imageColor: '#3b5b8c', sizes: ['S', 'M', 'L', 'XL'],
+    imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=75&auto=format&fit=crop', sizes: ['S', 'M', 'L', 'XL'],
     colors: [{ name: '인디고', hex: '#3b5b8c' }, { name: '블랙', hex: '#1f1f1f' }],
   },
   {
     id: 'outer-01', name: '나일론 윈드브레이커', category: '아우터', price: 79000,
     description: '가볍고 바람을 막아주는 나일론 자켓. 지퍼 포켓이 있습니다.',
-    imageColor: '#6b6b4b', sizes: ['S', 'M', 'L', 'XL'],
+    imageUrl: 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=800&q=75&auto=format&fit=crop', sizes: ['S', 'M', 'L', 'XL'],
     colors: [{ name: '카키', hex: '#6b6b4b' }, { name: '블랙', hex: '#1f1f1f' }, { name: '네이비', hex: '#1f2a44' }],
   },
   {
     id: 'acc-01', name: '울 니트 비니', category: '액세서리', price: 19000,
     description: '겨울 필수 아이템. 머리 둘레에 맞춰 늘어나는 니트 비니입니다.',
-    imageColor: '#8a8f98', sizes: ['FREE'],
+    imageUrl: 'https://images.unsplash.com/photo-1601333144130-8cbb312386b6?w=800&q=75&auto=format&fit=crop', sizes: ['FREE'],
     colors: [{ name: '그레이', hex: '#8a8f98' }, { name: '버건디', hex: '#6d1f2e' }],
   },
   {
     id: 'acc-02', name: '캔버스 토트백', category: '액세서리', price: 34000,
     description: '두툼한 캔버스 원단의 토트백. 노트북도 넉넉히 들어갑니다.',
-    imageColor: '#e2d6b8', sizes: ['FREE'],
+    imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=75&auto=format&fit=crop', sizes: ['FREE'],
     colors: [{ name: '내추럴', hex: '#e2d6b8' }, { name: '블랙', hex: '#1f1f1f' }],
   },
 ];
@@ -196,7 +195,7 @@ function persist() {
 }
 
 function thumb(p) {
-  return `<div class="thumb" style="background:${p.imageColor}"><span class="thumb-label">${esc(p.name)}</span></div>`;
+  return `<div class="thumb"><img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" loading="lazy"></div>`;
 }
 
 function visibleProducts() {
